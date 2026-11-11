@@ -1,0 +1,50 @@
+name: dbt CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  dbt-build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dbt-snowflake
+        run: |
+          pip install --upgrade pip
+          pip install dbt-snowflake
+
+      - name: Create profiles.yml from GitHub Secrets
+        run: |
+          mkdir -p ~/.dbt
+          cat << 'EOF' > ~/.dbt/profiles.yml
+          ecommerce_pipeline:
+            target: dev
+            outputs:
+              dev:
+                type: snowflake
+                account: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+                user: ${{ secrets.SNOWFLAKE_USER }}
+                password: ${{ secrets.SNOWFLAKE_PASSWORD }}
+                role: TRANSFORMER_ROLE
+                database: ANALYTICS
+                warehouse: TRANSFORM_WH
+                schema: DBT_CI
+                threads: 4
+          EOF
+
+      - name: Run dbt debug and dbt build
+        working-directory: ./ecommerce_pipeline
+        run: |
+          dbt debug
+          dbt build
