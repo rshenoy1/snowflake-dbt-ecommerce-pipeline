@@ -12,12 +12,14 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('dim_customers')
-              field: customer_id
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
       - name: order_status
         tests:
           - accepted_values:
-              values: ['completed', 'pending']
+              arguments:
+                values: ['completed', 'pending']
 
   - name: dim_customers
     description: "Customer dimension table with order counts and lifetime value."
