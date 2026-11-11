@@ -1,4 +1,4 @@
-﻿version: 2
+version: 2
 
 sources:
   - name: ecommerce
@@ -6,3 +6,4 @@ sources:
     schema: ECOMMERCE
     tables:
       - name: raw_orders
+      - name: raw_customers
